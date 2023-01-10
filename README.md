@@ -1,5 +1,7 @@
 # cmdpalette.nvim
 
+https://user-images.githubusercontent.com/1613863/211680141-0bfa36f4-8bf2-43aa-83dc-4be1d4787bc6.mov
+
 A Neovim plugin that provides a floating command-line window.
 
 ## Installation
