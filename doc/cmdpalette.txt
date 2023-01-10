@@ -1,0 +1,111 @@
+*cmdpalette.txt* A floating command-line window
+
+CONTENTS                                              *cmdpalette-contents*
+
+Introduction                  |cmdpalette-introduction|
+Usage                         |cmdpalette-usage|
+Configuration                 |cmdpalette-configuration|
+FAQ                           |cmdpalette-faq|
+
+
+===========================================================================
+INTRODUCTION                                       *cmdpalette-introduction*
+
+*cmdpalette* is a simple plugin for Neovim that provides a floating
+command-line window.
+
+===========================================================================
+USAGE                                                     *cmdpalette-usage*
+
+Use the |:Cmdpalette| command or call it in your own keybinding.
+
+>lua
+  require("cmdpalette").setup({})
+<
+
+Open cmdpalette.
+
+>
+  :Cmdpalette
+<
+
+Open cmdpalette by your own keybinding.
+
+>lua
+  vim.keymap.set("n", ":", "<Cmd>Cmdpalette<CR>")
+<
+
+===========================================================================
+Configuraion                                      *cmdpalette-configuration*
+
+Following is the default configuration.
+
+>lua
+  require("cmdpalette").setup({
+    win = {
+      height = 0.3,
+      width = 0.8,
+      border = "rounded",
+    },
+    sign = {
+      text = ":",
+    },
+    buf = {
+      filetype = "vim",
+      syntax = "vim",
+    },
+  },
+<
+
+===========================================================================
+FAQ                                                         *cmdpalette-faq*
+
+Q: I want to use cmdline-completion
+
+A: Cmdpalette does not provide cmdline-completion, because it is not a real
+cmdline-window.
+
+The other way to enable cmdline-completion is to use plugins such as the
+following.
+
+https://github.com/Shougo/ddc-source-cmdline
+https://github.com/hrsh7th/cmp-cmdline
+
+Example for ddc-source-cmdline
+
+>
+  lua <<EOF
+  require("cmdpalette").setup {
+    buf = {
+      filetype = "cmdpalette",
+    },
+  }
+  EOF
+
+  call ddc#custom#patch_filetype(['cmdpalette'], 'sources', ['cmdline'])
+  call ddc#custom#patch_global('sourceOptions', #{
+        \   cmdline: #{
+        \     mark: '[cmdline]',
+        \   }
+        \ })
+<
+
+Example for cmp-cmdline
+
+>lua
+  require("cmdpalette").setup {
+    buf = {
+      filetype = "cmdpalette",
+    },
+  }
+
+  cmp.setup.filetype("cmdpalette", {
+    mapping = cmp.mapping.preset.cmdline(),
+    sources = {
+      { name = "cmdline" },
+    },
+  })
+<
+
+===========================================================================
+vim:tw=80:ts=8:noet:ft=help:norl:
