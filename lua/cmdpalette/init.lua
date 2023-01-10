@@ -72,7 +72,7 @@ function M.clear_history()
   vim.cmd "redraw"
   local line = vim.fn.getline "."
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-  local msg = string.format("Are you sure you want to delete %s from a cmdline-history?", line)
+  local msg = string.format("Are you sure you want to delete [%s] from a cmdline-history?", line)
   if vim.fn.confirm(msg, "&Yes\n&No") == 1 then
     local pattern = string.format([[^%s$]], vim.fn.escape(line, "^$.*?/\\[]~"))
     vim.fn.histdel("cmd", pattern)
