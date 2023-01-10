@@ -65,11 +65,29 @@ function M.execute_cmd()
   vim.fn.histadd("cmd", line)
 end
 
+function M.clear_history()
+  if vim.fn.line "." == 1 then
+    return
+  end
+  vim.cmd "redraw"
+  local line = vim.fn.getline "."
+  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+  local msg = string.format("Are you sure you want to delete %s from a cmdline-history?", line)
+  if vim.fn.confirm(msg, "&Yes\n&No") == 1 then
+    local pattern = string.format([[^%s$]], vim.fn.escape(line, "^$.*?/\\[]~"))
+    vim.fn.histdel("cmd", pattern)
+    vim.cmd "wshada!"
+    M.redraw()
+    vim.api.nvim_win_set_cursor(0, { row - 1, col })
+  end
+end
+
 local function buf_keymap()
   local opts = { nowait = true, noremap = true, silent = true }
   vim.api.nvim_buf_set_keymap(buf, "n", "q", "<Cmd>quit<CR>", opts)
   vim.api.nvim_buf_set_keymap(buf, "n", "<Esc>", "<Cmd>quit<CR>", opts)
   vim.api.nvim_buf_set_keymap(buf, "i", "<CR>", "<Esc><Cmd>lua require'cmdpalette'.execute_cmd()<CR>", opts)
+  vim.api.nvim_buf_set_keymap(buf, "n", "<C-d>", "<Cmd>lua require'cmdpalette'.clear_history()<CR>", opts)
 end
 
 local function set_sign(len)
@@ -80,7 +98,7 @@ local function set_sign(len)
   end
 end
 
-function M.open()
+function M.redraw()
   local n = vim.fn.histnr "cmd"
   local cmd_list = {}
   for i = 1, n do
@@ -94,7 +112,10 @@ function M.open()
   set_sign(#cmd_list)
 
   vim.opt_local.number = false
+end
 
+function M.open()
+  M.redraw()
   vim.api.nvim_win_set_cursor(0, { 1, 0 })
   vim.cmd "startinsert"
 end
