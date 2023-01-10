@@ -61,7 +61,6 @@ function M.execute_cmd()
   local ok, err = pcall(vim.cmd, line)
   if not ok then
     vim.api.nvim_notify(err, vim.log.levels.ERROR, {})
-    return
   end
   vim.fn.histadd("cmd", line)
 end
