@@ -4,6 +4,7 @@ CONTENTS                                              *cmdpalette-contents*
 
 Introduction                  |cmdpalette-introduction|
 Usage                         |cmdpalette-usage|
+keybindings                   |cmdpalette-keybindings|
 Configuration                 |cmdpalette-configuration|
 FAQ                           |cmdpalette-faq|
 
@@ -34,6 +35,17 @@ Open cmdpalette by your own keybinding.
 >lua
   vim.keymap.set("n", ":", "<Cmd>Cmdpalette<CR>")
 <
+
+===========================================================================
+keybindings                                        *cmdpalette-keybindings*
+
+Default keybindings is as follows:
+
+*q*, *Esc* : Quit the current window
+
+*C-d* : Remove a command under the cursor from a cmdline-history
+
+These are enabled in normal mode.
 
 ===========================================================================
 Configuraion                                      *cmdpalette-configuration*

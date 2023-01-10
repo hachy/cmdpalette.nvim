@@ -22,6 +22,13 @@ Use the `Cmdpalette` command or call it in your own keybinding.
 vim.keymap.set("n", ":", "<Cmd>Cmdpalette<CR>")
 ```
 
+### Keybindings
+
+In normal mode
+
+- `q`, `Esc`: Quit the current window
+- `C-d`: Remove a command under the cursor from a cmdline-history
+
 ## Configuration
 
 Below is a default options:
