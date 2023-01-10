@@ -56,8 +56,7 @@ local function create_win()
 end
 
 function M.execute_cmd()
-  local cursor = vim.api.nvim_win_get_cursor(0)
-  local line = vim.fn.getline(cursor[1])
+  local line = vim.fn.getline "."
   vim.api.nvim_win_close(0, false)
   local ok, err = pcall(vim.cmd, line)
   if not ok then
