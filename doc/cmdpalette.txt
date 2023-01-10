@@ -118,6 +118,12 @@ Example for cmp-cmdline
     },
   })
 <
+Q: I want to change sign highlight
+
+A:
+>lua
+  vim.api.nvim_set_hl(0, "CmdpaletteSign", { link = "Todo" })
+<
 
 ===========================================================================
 vim:tw=80:ts=8:noet:ft=help:norl:
