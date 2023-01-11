@@ -78,10 +78,14 @@ function M.clear_history()
     return
   end
   local pattern = string.format([[^%s$]], vim.fn.escape(line, "^$.*/\\[]~"))
-  vim.fn.histdel("cmd", pattern)
-  vim.cmd "wshada!"
-  M.redraw()
-  vim.api.nvim_win_set_cursor(0, { row - 1, col })
+  if vim.fn.histdel("cmd", pattern) then
+    vim.cmd "wshada!"
+    M.redraw()
+    vim.api.nvim_win_set_cursor(0, { row - 1, col })
+    if not M.config.delete_confirm then
+      vim.api.nvim_notify(string.format('[cmdpalette]: "%s" has been deleted', line), vim.log.levels.WARN, {})
+    end
+  end
 end
 
 local function buf_keymap()
