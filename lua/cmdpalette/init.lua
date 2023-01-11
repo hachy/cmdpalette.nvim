@@ -13,6 +13,7 @@ M.config = {
     filetype = "vim",
     syntax = "vim",
   },
+  delete_confirm = true,
 }
 
 local palette, buf
@@ -73,13 +74,14 @@ function M.clear_history()
   local line = vim.fn.getline "."
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
   local msg = string.format("Are you sure you want to delete [%s] from a cmdline-history?", line)
-  if vim.fn.confirm(msg, "&Yes\n&No") == 1 then
-    local pattern = string.format([[^%s$]], vim.fn.escape(line, "^$.*?/\\[]~"))
-    vim.fn.histdel("cmd", pattern)
-    vim.cmd "wshada!"
-    M.redraw()
-    vim.api.nvim_win_set_cursor(0, { row - 1, col })
+  if M.config.delete_confirm and vim.fn.confirm(msg, "&Yes\n&No") ~= 1 then
+    return
   end
+  local pattern = string.format([[^%s$]], vim.fn.escape(line, "^$.*?/\\[]~"))
+  vim.fn.histdel("cmd", pattern)
+  vim.cmd "wshada!"
+  M.redraw()
+  vim.api.nvim_win_set_cursor(0, { row - 1, col })
 end
 
 local function buf_keymap()
