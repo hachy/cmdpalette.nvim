@@ -13,6 +13,7 @@ M.config = {
     filetype = "vim",
     syntax = "vim",
   },
+  delete_confirm = true,
 }
 
 local palette, buf
@@ -73,12 +74,17 @@ function M.clear_history()
   local line = vim.fn.getline "."
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
   local msg = string.format("Are you sure you want to delete [%s] from a cmdline-history?", line)
-  if vim.fn.confirm(msg, "&Yes\n&No") == 1 then
-    local pattern = string.format([[^%s$]], vim.fn.escape(line, "^$.*?/\\[]~"))
-    vim.fn.histdel("cmd", pattern)
+  if M.config.delete_confirm and vim.fn.confirm(msg, "&Yes\n&No") ~= 1 then
+    return
+  end
+  local pattern = string.format([[^%s$]], vim.fn.escape(line, "^$.*/\\[]~"))
+  if vim.fn.histdel("cmd", pattern) then
     vim.cmd "wshada!"
     M.redraw()
     vim.api.nvim_win_set_cursor(0, { row - 1, col })
+    if not M.config.delete_confirm then
+      vim.api.nvim_notify(string.format('[cmdpalette]: "%s" has been deleted', line), vim.log.levels.WARN, {})
+    end
   end
 end
 
@@ -134,7 +140,9 @@ function M.setup(conf)
       vim.api.nvim_buf_set_option(0, "undolevels", -1)
       vim.cmd [[silent g/^qa\?!\?$/d_]]
       vim.cmd [[silent g/^wq\?a\?!\?$/d_]]
-      vim.cmd [[silent 2,$g/^$/d_]]
+      if vim.fn.line "$" > 1 then
+        vim.cmd [[silent 2,$g/^$/d_]]
+      end
       vim.api.nvim_buf_set_option(0, "undolevels", old_undolevels)
     end,
   })
