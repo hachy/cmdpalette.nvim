@@ -77,7 +77,7 @@ function M.clear_history()
   if M.config.delete_confirm and vim.fn.confirm(msg, "&Yes\n&No") ~= 1 then
     return
   end
-  local pattern = string.format([[^%s$]], vim.fn.escape(line, "^$.*?/\\[]~"))
+  local pattern = string.format([[^%s$]], vim.fn.escape(line, "^$.*/\\[]~"))
   vim.fn.histdel("cmd", pattern)
   vim.cmd "wshada!"
   M.redraw()
