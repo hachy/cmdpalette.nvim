@@ -136,7 +136,9 @@ function M.setup(conf)
       vim.api.nvim_buf_set_option(0, "undolevels", -1)
       vim.cmd [[silent g/^qa\?!\?$/d_]]
       vim.cmd [[silent g/^wq\?a\?!\?$/d_]]
-      vim.cmd [[silent 2,$g/^$/d_]]
+      if vim.fn.line "$" > 1 then
+        vim.cmd [[silent 2,$g/^$/d_]]
+      end
       vim.api.nvim_buf_set_option(0, "undolevels", old_undolevels)
     end,
   })
