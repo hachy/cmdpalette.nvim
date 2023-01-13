@@ -138,10 +138,10 @@ function M.setup(conf)
     callback = function()
       local old_undolevels = vim.api.nvim_buf_get_option(0, "undolevels")
       vim.api.nvim_buf_set_option(0, "undolevels", -1)
-      vim.cmd [[silent g/^qa\?!\?$/d_]]
-      vim.cmd [[silent g/^wq\?a\?!\?$/d_]]
+      vim.cmd [[silent keeppatterns g/^qa\?!\?$/d_]]
+      vim.cmd [[silent keeppatterns g/^wq\?a\?!\?$/d_]]
       if vim.fn.line "$" > 1 then
-        vim.cmd [[silent 2,$g/^$/d_]]
+        vim.cmd [[silent keeppatterns 2,$g/^$/d_]]
       end
       vim.api.nvim_buf_set_option(0, "undolevels", old_undolevels)
     end,
