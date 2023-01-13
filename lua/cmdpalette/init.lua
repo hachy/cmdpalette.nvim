@@ -16,7 +16,7 @@ M.config = {
   delete_confirm = true,
 }
 
-local palette, buf
+local palette, buf, type
 
 local function create_buf(list)
   if buf and vim.api.nvim_buf_is_valid(buf) then
@@ -63,7 +63,7 @@ function M.execute_cmd()
   if not ok then
     vim.api.nvim_notify(err, vim.log.levels.ERROR, {})
   end
-  vim.fn.histadd("cmd", line)
+  vim.fn.histadd(type, line)
 end
 
 function M.clear_history()
@@ -78,7 +78,7 @@ function M.clear_history()
     return
   end
   local pattern = string.format([[^%s$]], vim.fn.escape(line, "^$.*/\\[]~"))
-  if vim.fn.histdel("cmd", pattern) then
+  if vim.fn.histdel(type, pattern) then
     vim.cmd "wshada!"
     M.redraw()
     vim.api.nvim_win_set_cursor(0, { row - 1, col })
@@ -92,8 +92,10 @@ local function buf_keymap()
   local opts = { nowait = true, noremap = true, silent = true }
   vim.api.nvim_buf_set_keymap(buf, "n", "q", "<Cmd>quit<CR>", opts)
   vim.api.nvim_buf_set_keymap(buf, "n", "<Esc>", "<Cmd>quit<CR>", opts)
-  vim.api.nvim_buf_set_keymap(buf, "i", "<CR>", "<Esc><Cmd>lua require'cmdpalette'.execute_cmd()<CR>", opts)
   vim.api.nvim_buf_set_keymap(buf, "n", "<C-d>", "<Cmd>lua require'cmdpalette'.clear_history()<CR>", opts)
+  if type == "cmd" then
+    vim.api.nvim_buf_set_keymap(buf, "i", "<CR>", "<Esc><Cmd>lua require'cmdpalette'.execute_cmd()<CR>", opts)
+  end
 end
 
 local function set_sign(len)
@@ -105,10 +107,10 @@ local function set_sign(len)
 end
 
 function M.redraw()
-  local n = vim.fn.histnr "cmd"
+  local n = vim.fn.histnr(type)
   local cmd_list = {}
   for i = 1, n do
-    cmd_list[i] = vim.fn.histget("cmd", i)
+    cmd_list[i] = vim.fn.histget(type, i)
   end
   cmd_list = vim.fn.reverse(cmd_list)
 
@@ -121,6 +123,7 @@ function M.redraw()
 end
 
 function M.open()
+  type = "cmd"
   M.redraw()
   vim.api.nvim_win_set_cursor(0, { 1, 0 })
   vim.cmd "startinsert"
