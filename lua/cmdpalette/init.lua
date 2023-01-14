@@ -5,6 +5,7 @@ M.config = {
     height = 0.3,
     width = 0.8,
     border = "rounded",
+    row_off = -2,
   },
   sign = {
     text = ":",
@@ -39,7 +40,7 @@ local function create_win()
 
   local win_height = math.ceil(height * M.config.win.height)
   local win_width = math.ceil(width * M.config.win.width)
-  local row = math.ceil((height - win_height) / 2 - 1)
+  local row = math.ceil((height - win_height) / 2)
   local col = math.ceil((width - win_width) / 2)
 
   local opts = {
@@ -47,7 +48,7 @@ local function create_win()
     relative = "editor",
     width = win_width,
     height = win_height,
-    row = row,
+    row = row + M.config.win.row_off,
     col = col,
     border = M.config.win.border,
   }
