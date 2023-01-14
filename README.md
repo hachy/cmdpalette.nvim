@@ -1,8 +1,8 @@
 # cmdpalette.nvim
 
-https://user-images.githubusercontent.com/1613863/211680141-0bfa36f4-8bf2-43aa-83dc-4be1d4787bc6.mov
-
 A Neovim plugin that provides a floating command-line window.
+
+https://user-images.githubusercontent.com/1613863/211680141-0bfa36f4-8bf2-43aa-83dc-4be1d4787bc6.mov
 
 ## Installation
 
@@ -41,6 +41,7 @@ require("cmdpalette").setup({
     height = 0.3,
     width = 0.8,
     border = "rounded",
+    row_off = -2,
   },
   sign = {
     text = ":",
@@ -49,6 +50,7 @@ require("cmdpalette").setup({
     filetype = "vim",
     syntax = "vim",
   },
+  delete_confirm = true,
 },
 
 ```

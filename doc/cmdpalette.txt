@@ -58,6 +58,7 @@ Following is the default configuration.
       height = 0.3,
       width = 0.8,
       border = "rounded",
+      row_off = -2,
     },
     sign = {
       text = ":",
@@ -66,6 +67,7 @@ Following is the default configuration.
       filetype = "vim",
       syntax = "vim",
     },
+    delete_confirm = true,
   },
 <
 
