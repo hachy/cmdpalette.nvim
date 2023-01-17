@@ -21,7 +21,7 @@ local palette, buf, type
 
 local function create_buf(list)
   if buf and vim.api.nvim_buf_is_valid(buf) then
-    vim.cmd.bdelete()
+    vim.cmd.bwipeout()
   end
   buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_name(buf, "cmdpalette")
