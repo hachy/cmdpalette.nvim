@@ -60,9 +60,9 @@ end
 function M.execute_cmd()
   local line = vim.api.nvim_get_current_line()
   vim.api.nvim_win_close(0, false)
-  local ok, err = pcall(vim.cmd, line)
+  local ok, err = pcall(vim.cmd, line) ---@diagnostic disable-line: param-type-mismatch
   if not ok then
-    vim.api.nvim_notify(err, vim.log.levels.ERROR, {})
+    vim.api.nvim_notify(err, vim.log.levels.ERROR, {}) ---@diagnostic disable-line: param-type-mismatch
   end
   vim.fn.histadd(type, line)
 end
