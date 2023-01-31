@@ -58,7 +58,7 @@ local function create_win()
 end
 
 function M.execute_cmd()
-  local line = vim.fn.getline "."
+  local line = vim.api.nvim_get_current_line()
   vim.api.nvim_win_close(0, false)
   local ok, err = pcall(vim.cmd, line)
   if not ok then
@@ -72,7 +72,7 @@ function M.clear_history()
     return
   end
   vim.cmd "redraw"
-  local line = vim.fn.getline "."
+  local line = vim.api.nvim_get_current_line()
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
   local msg = string.format("Are you sure you want to delete [%s] from a cmdline-history?", line)
   if M.config.delete_confirm and vim.fn.confirm(msg, "&Yes\n&No") ~= 1 then
