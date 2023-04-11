@@ -42,6 +42,9 @@ require("cmdpalette").setup({
     width = 0.8,
     border = "rounded",
     row_off = -2,
+    -- Title requires nvim-0.9 or higher.
+    title = "Cmdpalette",
+    title_pos = "center",
   },
   sign = {
     text = ":",
@@ -51,6 +54,7 @@ require("cmdpalette").setup({
     syntax = "vim",
   },
   delete_confirm = true,
+  show_title = true,
 },
 
 ```
