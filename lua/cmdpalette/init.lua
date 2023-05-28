@@ -28,18 +28,18 @@ local function create_buf(list)
   end
   buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_name(buf, "cmdpalette")
-  vim.api.nvim_buf_set_option(buf, "bufhidden", "wipe")
-  vim.api.nvim_buf_set_option(buf, "filetype", M.config.buf.filetype)
-  vim.api.nvim_buf_set_option(buf, "syntax", M.config.buf.syntax)
-  vim.api.nvim_buf_set_option(buf, "buftype", "nofile")
-  vim.api.nvim_buf_set_option(buf, "swapfile", false)
+  vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
+  vim.api.nvim_set_option_value("filetype", M.config.buf.filetype, { buf = buf })
+  vim.api.nvim_set_option_value("syntax", M.config.buf.syntax, { buf = buf })
+  vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
+  vim.api.nvim_set_option_value("swapfile", false, { buf = buf })
 
   vim.api.nvim_buf_set_lines(buf, 1, -1, false, list)
 end
 
 local function create_win()
-  local width = vim.api.nvim_get_option "columns"
-  local height = vim.api.nvim_get_option "lines"
+  local width = vim.api.nvim_get_option_value("columns", {})
+  local height = vim.api.nvim_get_option_value("lines", {})
 
   local win_height = math.ceil(height * M.config.win.height)
   local win_width = math.ceil(width * M.config.win.width)
@@ -64,7 +64,7 @@ local function create_win()
     })
   end
 
-  vim.api.nvim_win_set_option(palette, "cursorline", true)
+  vim.api.nvim_set_option_value("cursorline", true, { scope = "local", win = palette })
 end
 
 function M.execute_cmd()
@@ -150,14 +150,14 @@ function M.setup(conf)
     group = cmdpalette,
     pattern = "cmdpalette",
     callback = function()
-      local old_undolevels = vim.api.nvim_buf_get_option(0, "undolevels")
-      vim.api.nvim_buf_set_option(0, "undolevels", -1)
+      local old_undolevels = vim.api.nvim_get_option_value("undolevels", { buf = 0 })
+      vim.api.nvim_set_option_value("undolevels", -1, { buf = 0 })
       vim.cmd [[silent keeppatterns g/^qa\?!\?$/d_]]
       vim.cmd [[silent keeppatterns g/^wq\?a\?!\?$/d_]]
       if vim.fn.line "$" > 1 then
         vim.cmd [[silent keeppatterns 2,$g/^$/d_]]
       end
-      vim.api.nvim_buf_set_option(0, "undolevels", old_undolevels)
+      vim.api.nvim_set_option_value("undolevels", old_undolevels, { buf = 0 })
     end,
   })
 
