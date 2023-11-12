@@ -78,13 +78,20 @@ Following is the default configuration.
 ===========================================================================
 FAQ                                                         *cmdpalette-faq*
 
-Q: I want to use cmdline-completion
+Q: I want to use completion
 
-A: Cmdpalette does not provide cmdline-completion, because it is not a real
-cmdline-window.
+A: Tab completion can be enabled with the following settings.
 
-The other way to enable cmdline-completion is to use plugins such as the
-following.
+>lua
+  vim.api.nvim_create_autocmd("filetype", {
+    pattern = "cmdpalette",
+    callback = function()
+      vim.keymap.set("i", "<Tab>", "<c-x><c-v>", { buffer = true })
+    end,
+  })
+<
+
+Completion can also be enabled with plugins such as the following.
 
 https://github.com/Shougo/ddc-source-cmdline
 https://github.com/hrsh7th/cmp-cmdline
@@ -117,16 +124,26 @@ Example for cmp-cmdline
     },
   }
 
-  cmp.setup.filetype("cmdpalette", {
-    mapping = cmp.mapping.preset.cmdline(),
+  require("cmp").setup.filetype("cmdpalette", {
     sources = {
       { name = "cmdline" },
     },
   })
+
+  vim.api.nvim_create_autocmd("filetype", {
+    pattern = "cmdpalette",
+    callback = function()
+      vim.keymap.set("i", "<Tab>", function()
+	require("cmp").complete()
+      end, { buffer = true })
+    end,
+  })
 <
+
 Q: I want to change sign highlight
 
 A:
+
 >lua
   vim.api.nvim_set_hl(0, "CmdpaletteSign", { link = "Todo" })
 <
