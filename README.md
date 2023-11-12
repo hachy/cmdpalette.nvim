@@ -6,17 +6,30 @@ https://user-images.githubusercontent.com/1613863/211680141-0bfa36f4-8bf2-43aa-8
 
 ## Installation
 
+Using [lazy.nvim](https://github.com/folke/lazy.nvim)
+
+```lua
+  {
+    "hachy/cmdpalette.nvim",
+    lazy = true,
+    cmd = "Cmdpalette",
+    config = function()
+      require("cmdpalette").setup()
+    end,
+  },
+```
+
 Using [vim-plug](https://github.com/junegunn/vim-plug)
 
 ```vim
 Plug 'hachy/cmdpalette.nvim'
 ```
 
-## Usage
-
 ```lua
 require("cmdpalette").setup({})
 ```
+
+## Usage
 
 Use the `Cmdpalette` command or call it in your own keybinding.
 
