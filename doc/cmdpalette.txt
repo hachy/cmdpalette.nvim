@@ -33,7 +33,7 @@ Open cmdpalette.
 Open cmdpalette by your own keybinding.
 
 >lua
-  vim.keymap.set("n", ":", "<Cmd>Cmdpalette<CR>")
+  vim.keymap.set("n", ":", "<Plug>(cmdpalette)")
 <
 
 ===========================================================================

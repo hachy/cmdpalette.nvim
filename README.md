@@ -11,8 +11,6 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
   {
     "hachy/cmdpalette.nvim",
-    lazy = true,
-    cmd = "Cmdpalette",
     config = function()
       require("cmdpalette").setup()
     end,
@@ -34,7 +32,7 @@ require("cmdpalette").setup({})
 Use the `Cmdpalette` command or call it in your own keybinding.
 
 ```lua
-vim.keymap.set("n", ":", "<Cmd>Cmdpalette<CR>")
+vim.keymap.set("n", ":", "<Plug>(cmdpalette)")
 ```
 
 ### Keybindings
