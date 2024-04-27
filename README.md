@@ -66,6 +66,5 @@ require("cmdpalette").setup({
   },
   delete_confirm = true,
   show_title = true,
-},
-
+})
 ```
