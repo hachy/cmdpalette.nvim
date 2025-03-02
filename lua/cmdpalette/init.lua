@@ -18,6 +18,7 @@ M.config = {
   },
   delete_confirm = true,
   show_title = true,
+  initial_mode = "insert",
 }
 
 local palette, buf, type
@@ -137,7 +138,9 @@ function M.open()
   type = "cmd"
   M.redraw()
   vim.api.nvim_win_set_cursor(0, { 1, 0 })
-  vim.cmd "startinsert"
+  if M.config.initial_mode == "insert" then
+      vim.cmd "startinsert"
+  end
 end
 
 function M.setup(conf)
