@@ -106,6 +106,7 @@ local function buf_keymap()
   vim.api.nvim_buf_set_keymap(buf, "n", "<C-d>", "<Cmd>lua require'cmdpalette'.clear_history()<CR>", opts)
   if type == "cmd" then
     vim.api.nvim_buf_set_keymap(buf, "i", "<CR>", "<Esc><Cmd>lua require'cmdpalette'.execute_cmd()<CR>", opts)
+    vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "<Cmd>lua require'cmdpalette'.execute_cmd()<CR>", opts)
   end
 end
 
