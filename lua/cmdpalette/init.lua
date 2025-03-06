@@ -18,7 +18,7 @@ M.config = {
   },
   delete_confirm = true,
   show_title = true,
-  start_insert  = true,
+  start_insert = true,
 }
 
 local palette, buf, type
