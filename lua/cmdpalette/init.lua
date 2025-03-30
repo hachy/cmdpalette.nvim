@@ -73,7 +73,7 @@ function M.execute_cmd()
   vim.api.nvim_win_close(0, false)
   local ok, err = pcall(vim.cmd, line) ---@diagnostic disable-line: param-type-mismatch
   if not ok then
-    vim.api.nvim_notify(err, vim.log.levels.ERROR, {}) ---@diagnostic disable-line: param-type-mismatch
+    vim.api.nvim_echo({ { err, "ErrorMsg" } }, true, {})
   end
   vim.fn.histadd(type, line)
 end
@@ -95,7 +95,7 @@ function M.clear_history()
     M.redraw()
     vim.api.nvim_win_set_cursor(0, { row - 1, col })
     if not M.config.delete_confirm then
-      vim.api.nvim_notify(string.format('[cmdpalette]: "%s" has been deleted', line), vim.log.levels.WARN, {})
+      vim.api.nvim_echo({ { string.format('[cmdpalette]: "%s" has been deleted', line), "WarningMsg" } }, true, {})
     end
   end
 end
