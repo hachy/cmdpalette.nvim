@@ -130,9 +130,11 @@ function M.redraw()
   local n = vim.fn.histnr(type)
   local cmd_list = {}
   for i = 1, n do
-    cmd_list[i] = vim.fn.histget(type, i)
+    local h = vim.fn.histget(type, i)
+    if h ~= "" then
+      table.insert(cmd_list, 1, h) -- insert in reverse order
+    end
   end
-  cmd_list = vim.fn.reverse(cmd_list)
 
   create_buf(cmd_list)
   create_win()
