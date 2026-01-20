@@ -28,6 +28,18 @@ M.state = {
   type = "cmd",
 }
 
+local function get_history_list(type)
+  local n = vim.fn.histnr(type)
+  local cmd_list = {}
+  for i = 1, n do
+    local h = vim.fn.histget(type, i)
+    if h ~= "" then
+      table.insert(cmd_list, 1, h) -- insert in reverse order
+    end
+  end
+  return cmd_list
+end
+
 local function create_buf(list)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_name(buf, "cmdpalette")
@@ -136,15 +148,7 @@ function M.render(state)
     vim.cmd.bwipeout()
   end
 
-  local n = vim.fn.histnr(state.type)
-  local cmd_list = {}
-  for i = 1, n do
-    local h = vim.fn.histget(state.type, i)
-    if h ~= "" then
-      table.insert(cmd_list, 1, h) -- insert in reverse order
-    end
-  end
-
+  local cmd_list = get_history_list(state.type)
   state.buf = create_buf(cmd_list)
   state.win = create_win(state.buf)
   apply_keymaps(state.buf, state.type)
