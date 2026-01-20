@@ -6,7 +6,7 @@ M.config = {
     width = 0.8,
     border = "rounded",
     row_off = -2,
-    title = "Cmdpalette",
+    title = " Cmdpalette ",
     title_pos = "center",
   },
   sign = {
@@ -58,7 +58,7 @@ local function create_win()
   }
   palette = vim.api.nvim_open_win(buf, true, opts)
 
-  if vim.fn.has "nvim-0.9" == 1 and M.config.show_title then
+  if M.config.show_title then
     vim.api.nvim_win_set_config(palette, {
       title = M.config.win.title,
       title_pos = M.config.win.title_pos,
