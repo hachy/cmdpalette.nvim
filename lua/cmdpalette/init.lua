@@ -31,12 +31,28 @@ M.state = {
 local function get_history_list(type)
   local n = vim.fn.histnr(type)
   local cmd_list = {}
+  local ignore_patterns = {
+    "^qa?%!?$",
+    "^wq?a?%!?$",
+    "^$",
+  }
+
   for i = 1, n do
     local h = vim.fn.histget(type, i)
-    if h ~= "" then
+    local should_ignore = false
+
+    for _, pattern in ipairs(ignore_patterns) do
+      if h:match(pattern) then
+        should_ignore = true
+        break
+      end
+    end
+
+    if h ~= "" and not should_ignore then
       table.insert(cmd_list, 1, h) -- insert in reverse order
     end
   end
+
   return cmd_list
 end
 
@@ -154,7 +170,6 @@ function M.refresh(state)
   end
   local cmd_list = get_history_list(state.type)
   vim.api.nvim_buf_set_lines(state.buf, 1, -1, false, cmd_list)
-  M.sanitize_content()
   set_sign(state.buf, #cmd_list)
 end
 
@@ -176,31 +191,12 @@ function M.open()
   end
 end
 
-function M.sanitize_content()
-  local old_undolevels = vim.api.nvim_get_option_value("undolevels", { buf = 0 })
-  vim.api.nvim_set_option_value("undolevels", -1, { buf = 0 })
-  vim.cmd [[silent keeppatterns g/^qa\?!\?$/d_]]
-  vim.cmd [[silent keeppatterns g/^wq\?a\?!\?$/d_]]
-  if vim.fn.line "$" > 1 then
-    vim.cmd [[silent keeppatterns 2,$g/^$/d_]]
-  end
-  vim.api.nvim_set_option_value("undolevels", old_undolevels, { buf = 0 })
-end
-
 function M.setup(conf)
   M.config = vim.tbl_deep_extend("force", M.config, conf or {})
 
   vim.api.nvim_set_hl(0, "CmdpaletteSign", { default = true, link = "NonText" })
 
   local cmdpalette = vim.api.nvim_create_augroup("cmdpalette", {})
-  vim.api.nvim_create_autocmd("BufEnter", {
-    group = cmdpalette,
-    pattern = "cmdpalette",
-    callback = function()
-      M.sanitize_content()
-    end,
-  })
-
   vim.api.nvim_create_autocmd("BufLeave", {
     group = cmdpalette,
     pattern = "cmdpalette",
