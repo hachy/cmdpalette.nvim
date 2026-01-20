@@ -51,6 +51,7 @@ require("cmdpalette").setup({
   win = {
     height = 0.3,
     width = 0.8,
+    max_width = 120,
     border = "rounded",
     row_off = -2,
     title = " Cmdpalette ",

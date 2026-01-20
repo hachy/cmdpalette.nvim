@@ -4,6 +4,7 @@ M.config = {
   win = {
     height = 0.3,
     width = 0.8,
+    max_width = 120,
     border = "rounded",
     row_off = -2,
     title = " Cmdpalette ",
@@ -39,19 +40,25 @@ local function create_buf(list)
 end
 
 local function create_win()
-  local width = vim.api.nvim_get_option_value("columns", {})
-  local height = vim.api.nvim_get_option_value("lines", {})
+  local screen_height = vim.api.nvim_get_option_value("lines", {})
+  local float_height = math.floor(screen_height * M.config.win.height)
+  local row = math.floor((screen_height - float_height) / 2)
 
-  local win_height = math.ceil(height * M.config.win.height)
-  local win_width = math.ceil(width * M.config.win.width)
-  local row = math.ceil((height - win_height) / 2)
-  local col = math.ceil((width - win_width) / 2)
+  local screen_width = vim.api.nvim_get_option_value("columns", {})
+  local float_width = math.floor(screen_width * M.config.win.width)
+  if M.config.win.max_width and M.config.win.max_width > 0 then
+    float_width = math.min(float_width, M.config.win.max_width)
+  end
+  if float_width > screen_width - 4 then
+    float_width = screen_width - 4
+  end
+  local col = math.floor((screen_width - float_width) / 2)
 
   local opts = {
     style = "minimal",
     relative = "editor",
-    width = win_width,
-    height = win_height,
+    width = float_width,
+    height = float_height,
     row = row + M.config.win.row_off,
     col = col,
     border = M.config.win.border,
