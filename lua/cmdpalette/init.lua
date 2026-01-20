@@ -22,13 +22,14 @@ M.config = {
   start_insert = true,
 }
 
-local palette, buf, type
+M.state = {
+  win = nil,
+  buf = nil,
+  type = "cmd",
+}
 
 local function create_buf(list)
-  if buf and vim.api.nvim_buf_is_valid(buf) then
-    vim.cmd.bwipeout()
-  end
-  buf = vim.api.nvim_create_buf(false, true)
+  local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_name(buf, "cmdpalette")
   vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
   vim.api.nvim_set_option_value("filetype", M.config.buf.filetype, { buf = buf })
@@ -37,9 +38,10 @@ local function create_buf(list)
   vim.api.nvim_set_option_value("swapfile", false, { buf = buf })
 
   vim.api.nvim_buf_set_lines(buf, 1, -1, false, list)
+  return buf
 end
 
-local function create_win()
+local function create_win(buf)
   local screen_height = vim.api.nvim_get_option_value("lines", {})
   local float_height = math.floor(screen_height * M.config.win.height)
   local row = math.floor((screen_height - float_height) / 2)
@@ -63,16 +65,16 @@ local function create_win()
     col = col,
     border = M.config.win.border,
   }
-  palette = vim.api.nvim_open_win(buf, true, opts)
-
+  local win = vim.api.nvim_open_win(buf, true, opts)
   if M.config.show_title then
-    vim.api.nvim_win_set_config(palette, {
+    vim.api.nvim_win_set_config(win, {
       title = M.config.win.title,
       title_pos = M.config.win.title_pos,
     })
   end
+  vim.api.nvim_set_option_value("cursorline", true, { scope = "local", win = win })
 
-  vim.api.nvim_set_option_value("cursorline", true, { scope = "local", win = palette })
+  return win
 end
 
 function M.execute_cmd()
@@ -82,7 +84,7 @@ function M.execute_cmd()
   if not ok then
     vim.api.nvim_echo({ { err, "ErrorMsg" } }, true, {})
   end
-  vim.fn.histadd(type, line)
+  vim.fn.histadd(M.state.type, line)
 end
 
 function M.clear_history()
@@ -97,9 +99,9 @@ function M.clear_history()
     return
   end
   local pattern = string.format([[^%s$]], vim.fn.escape(line, "^$.*/\\[]~"))
-  if vim.fn.histdel(type, pattern) then
+  if vim.fn.histdel(M.state.type, pattern) then
     vim.cmd "wshada!"
-    M.redraw()
+    M.render(M.state)
     vim.api.nvim_win_set_cursor(0, { row - 1, col })
     if not M.config.delete_confirm then
       vim.api.nvim_echo({ { string.format('[cmdpalette]: "%s" has been deleted', line), "WarningMsg" } }, true, {})
@@ -107,18 +109,21 @@ function M.clear_history()
   end
 end
 
-local function buf_keymap()
-  local opts = { nowait = true, noremap = true, silent = true }
-  vim.api.nvim_buf_set_keymap(buf, "n", "q", "<Cmd>quit<CR>", opts)
-  vim.api.nvim_buf_set_keymap(buf, "n", "<Esc>", "<Cmd>quit<CR>", opts)
-  vim.api.nvim_buf_set_keymap(buf, "n", "<C-d>", "<Cmd>lua require'cmdpalette'.clear_history()<CR>", opts)
+local function apply_keymaps(buf, type)
+  local opts = { buffer = buf, nowait = true, noremap = true, silent = true }
+  vim.keymap.set("n", "q", "<Cmd>quit<CR>", opts)
+  vim.keymap.set("n", "<Esc>", "<Cmd>quit<CR>", opts)
+  vim.keymap.set("n", "<C-d>", M.clear_history, opts)
+
   if type == "cmd" then
-    vim.api.nvim_buf_set_keymap(buf, "i", "<CR>", "<Esc><Cmd>lua require'cmdpalette'.execute_cmd()<CR>", opts)
-    vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "<Cmd>lua require'cmdpalette'.execute_cmd()<CR>", opts)
+    vim.keymap.set({ "n", "i" }, "<CR>", function()
+      vim.cmd "stopinsert"
+      M.execute_cmd()
+    end, opts)
   end
 end
 
-local function set_sign(len)
+local function set_sign(buf, len)
   vim.opt_local.signcolumn = "yes"
   vim.fn.sign_define("CmdPaletteSign", { text = M.config.sign.text, texthl = "CmdPaletteSign" })
   for i = 1, len do
@@ -126,27 +131,31 @@ local function set_sign(len)
   end
 end
 
-function M.redraw()
-  local n = vim.fn.histnr(type)
+function M.render(state)
+  if state.buf and vim.api.nvim_buf_is_valid(state.buf) then
+    vim.cmd.bwipeout()
+  end
+
+  local n = vim.fn.histnr(state.type)
   local cmd_list = {}
   for i = 1, n do
-    local h = vim.fn.histget(type, i)
+    local h = vim.fn.histget(state.type, i)
     if h ~= "" then
       table.insert(cmd_list, 1, h) -- insert in reverse order
     end
   end
 
-  create_buf(cmd_list)
-  create_win()
-  buf_keymap()
-  set_sign(#cmd_list)
+  state.buf = create_buf(cmd_list)
+  state.win = create_win(state.buf)
+  apply_keymaps(state.buf, state.type)
+  set_sign(state.buf, #cmd_list)
 
   vim.opt_local.number = false
 end
 
 function M.open()
-  type = "cmd"
-  M.redraw()
+  M.state.type = "cmd"
+  M.render(M.state)
   vim.api.nvim_win_set_cursor(0, { 1, 0 })
   if M.config.start_insert then
     vim.cmd "startinsert"
@@ -178,7 +187,7 @@ function M.setup(conf)
     group = cmdpalette,
     pattern = "cmdpalette",
     callback = function()
-      vim.api.nvim_win_close(palette, false)
+      vim.api.nvim_win_close(M.state.win, false)
     end,
   })
 end
