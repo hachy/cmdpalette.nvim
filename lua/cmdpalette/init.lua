@@ -113,7 +113,7 @@ function M.clear_history()
   local pattern = string.format([[^%s$]], vim.fn.escape(line, "^$.*/\\[]~"))
   if vim.fn.histdel(M.state.type, pattern) then
     vim.cmd "wshada!"
-    M.render(M.state)
+    M.refresh(M.state)
     vim.api.nvim_win_set_cursor(0, { row - 1, col })
     if not M.config.delete_confirm then
       vim.api.nvim_echo({ { string.format('[cmdpalette]: "%s" has been deleted', line), "WarningMsg" } }, true, {})
@@ -148,27 +148,43 @@ local function set_sign(buf, len)
   end
 end
 
-function M.render(state)
-  if state.buf and vim.api.nvim_buf_is_valid(state.buf) then
-    vim.cmd.bwipeout()
+function M.refresh(state)
+  if not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
+    return
   end
-
   local cmd_list = get_history_list(state.type)
-  state.buf = create_buf(cmd_list)
-  state.win = create_win(state.buf)
-  apply_keymaps(state.buf, state.type)
+  vim.api.nvim_buf_set_lines(state.buf, 1, -1, false, cmd_list)
+  M.sanitize_content()
   set_sign(state.buf, #cmd_list)
-
-  vim.opt_local.number = false
 end
 
 function M.open()
   M.state.type = "cmd"
-  M.render(M.state)
+  if M.state.win and vim.api.nvim_win_is_valid(M.state.win) then
+    vim.cmd.bwipeout()
+  end
+
+  local cmd_list = get_history_list(M.state.type)
+  M.state.buf = create_buf(cmd_list)
+  M.state.win = create_win(M.state.buf)
+  apply_keymaps(M.state.buf, M.state.type)
+  set_sign(M.state.buf, #cmd_list)
+  vim.opt_local.number = false
   vim.api.nvim_win_set_cursor(0, { 1, 0 })
   if M.config.start_insert then
     vim.cmd "startinsert"
   end
+end
+
+function M.sanitize_content()
+  local old_undolevels = vim.api.nvim_get_option_value("undolevels", { buf = 0 })
+  vim.api.nvim_set_option_value("undolevels", -1, { buf = 0 })
+  vim.cmd [[silent keeppatterns g/^qa\?!\?$/d_]]
+  vim.cmd [[silent keeppatterns g/^wq\?a\?!\?$/d_]]
+  if vim.fn.line "$" > 1 then
+    vim.cmd [[silent keeppatterns 2,$g/^$/d_]]
+  end
+  vim.api.nvim_set_option_value("undolevels", old_undolevels, { buf = 0 })
 end
 
 function M.setup(conf)
@@ -181,14 +197,7 @@ function M.setup(conf)
     group = cmdpalette,
     pattern = "cmdpalette",
     callback = function()
-      local old_undolevels = vim.api.nvim_get_option_value("undolevels", { buf = 0 })
-      vim.api.nvim_set_option_value("undolevels", -1, { buf = 0 })
-      vim.cmd [[silent keeppatterns g/^qa\?!\?$/d_]]
-      vim.cmd [[silent keeppatterns g/^wq\?a\?!\?$/d_]]
-      if vim.fn.line "$" > 1 then
-        vim.cmd [[silent keeppatterns 2,$g/^$/d_]]
-      end
-      vim.api.nvim_set_option_value("undolevels", old_undolevels, { buf = 0 })
+      M.sanitize_content()
     end,
   })
 
