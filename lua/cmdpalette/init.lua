@@ -56,7 +56,7 @@ local function get_history_list(type)
   return cmd_list
 end
 
-local function create_buf(list)
+local function create_buf()
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_name(buf, "cmdpalette")
   vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
@@ -64,8 +64,6 @@ local function create_buf(list)
   vim.api.nvim_set_option_value("syntax", M.config.buf.syntax, { buf = buf })
   vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
   vim.api.nvim_set_option_value("swapfile", false, { buf = buf })
-
-  vim.api.nvim_buf_set_lines(buf, 1, -1, false, list)
   return buf
 end
 
@@ -176,11 +174,16 @@ end
 function M.open()
   M.state.type = "cmd"
   if M.state.win and vim.api.nvim_win_is_valid(M.state.win) then
-    vim.cmd.bwipeout()
+    vim.api.nvim_win_close(M.state.win, true)
+  end
+
+  if not M.state.buf or not vim.api.nvim_buf_is_valid(M.state.buf) then
+    M.state.buf = create_buf()
   end
 
   local cmd_list = get_history_list(M.state.type)
-  M.state.buf = create_buf(cmd_list)
+  vim.api.nvim_buf_set_lines(M.state.buf, 1, -1, false, cmd_list)
+
   M.state.win = create_win(M.state.buf)
   apply_keymaps(M.state.buf, M.state.type)
   set_sign(M.state.buf, #cmd_list)
