@@ -143,7 +143,7 @@ local function apply_keymaps(buf, type)
 
   if type == "cmd" then
     vim.keymap.set({ "n", "i" }, "<CR>", function()
-      if vim.api.nvim_get_mode().mode == "i" then
+      if vim.api.nvim_get_mode().mode:sub(1, 1) == "i" then
         vim.cmd "stopinsert"
       end
       -- Use schedule to safely execute after exiting insert mode
